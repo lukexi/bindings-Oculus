@@ -11,7 +11,7 @@ import Graphics.GLUtil
 initGL :: IO (ShaderProgram, GL.VertexArrayObject, GL.VertexArrayObject)
 initGL = do
   -- texture Texture2D $= Enabled
-  shadeModel        $= Smooth
+  -- shadeModel        $= Smooth
   clearColor        $= Color4 1 0 0 1.0
   clearDepth        $= 1.0
   depthFunc         $= Just Less

@@ -56,18 +56,28 @@ getWindowHdl :: GLFWHandle -> IO (Maybe GLFW.Window)
 getWindowHdl glfwHdl = 
   fmap fst $ readIORef (winHdl glfwHdl)
 
+simpleErrorCallback :: (Show a, Show b) => a -> b -> IO ()
+simpleErrorCallback e s = putStrLn $ unwords [show e, show s]
+
 initGLFW :: (Int,Int) -> String -> Bool -> IO GLFWHandle
 initGLFW winSize' winTitle' fullScreenSW = do
-  True <- GLFW.init
+  GLFW.setErrorCallback $ Just simpleErrorCallback
+  _success <- GLFW.init
+  
   GLFW.defaultWindowHints
-  GLFW.windowHint $ GLFW.WindowHint'ContextVersionMajor (3::Int)
+  -- GLFW.windowHint $ GLFW.WindowHint'ContextVersionMajor (3::Int)
+
+  GLFW.windowHint $ GLFW.WindowHint'ClientAPI GLFW.ClientAPI'OpenGL
+  GLFW.windowHint $ GLFW.WindowHint'OpenGLForwardCompat True
+  GLFW.windowHint $ GLFW.WindowHint'OpenGLProfile GLFW.OpenGLProfile'Core
+  GLFW.windowHint $ GLFW.WindowHint'ContextVersionMajor 3
+  GLFW.windowHint $ GLFW.WindowHint'ContextVersionMinor 2
   --GLFW.windowHint $ GLFW.WindowHint'ContextVersionMinor (3::Int)
   --GLFW.windowHint $ GLFW.WindowHint'OpenGLProfile GLFW.OpenGLProfile'Compat
   --GLFW.windowHint $ GLFW.WindowHint'RefreshRate (60::Int)
   --
   exitFlg' <- newIORef False
   uiMode' <- newIORef Mode2D
-
   keyStat' <- createKeyStatHdl
   mouseStat' <- createMouseStatHdl
   --
@@ -129,7 +139,7 @@ toggleFullScreenMode glfwHdl = do
   case winStat of
     (Just win,scmd) -> do
       (wWidth,wHight) <- getWindowSize glfwHdl
-      GLFW.windowShouldClose win
+      -- GLFW.windowShouldClose win
       GLFW.destroyWindow win
       winTitle' <- readIORef $ winTitle glfwHdl 
       newwin' <- if scmd 

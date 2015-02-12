@@ -7,22 +7,19 @@ import Bindings.OculusRift.Types
 
 import Control.Exception ( bracket )
 import Debug.Trace ( traceIO )
-import Foreign.C.String ( peekCString )
-import Foreign.Storable ( peek ) 
 
 import Data.Maybe ( isJust,fromJust )
 import Data.Bits 
-import Control.Monad ( forM_, forM )
 import Control.Concurrent (threadDelay)
 
 import GLFWWindow
 import GLView
---import Graphics.UI.GLFW (getWindowHandle,getWinDC)
+
 import Graphics.Rendering.OpenGL as GL
 import Graphics.GLUtil
 import Foreign.Ptr (nullPtr)
-
---import Foreign.Ptr
+import Control.Applicative
+import Data.Traversable
 
 main :: IO ()
 main = bracket
@@ -40,10 +37,11 @@ main = bracket
       traceIO "init OK"
       bracket
         (do
-          -- !maxIdx <- ovrHmd_Detect
+          !maxIdx <- ovrHmd_Detect
           -- traceIO $ "detect = " ++ (show maxIdx)
-          -- !hmd <- ovrHmd_Create (maxIdx)
-          !hmd <- ovrHmd_Create 0
+          !hmd <- if maxIdx > 0 
+            then ovrHmd_Create (maxIdx - 1)
+            else Just <$> ovrHmd_CreateDebug ovrHmd_DK2
           return hmd)
         (\ hmd' -> do
           if isJust hmd' 
@@ -56,6 +54,7 @@ main = bracket
         (mainProcess ghmd)
     else traceIO "init NG")
 
+mainProcess :: GLFWHandle -> Maybe OvrHmd -> IO ()
 mainProcess _ Nothing = traceIO "create hmd NG"
 mainProcess ghmd hmd' = do
   !glhdl <- initGL
@@ -90,9 +89,9 @@ mainProcess ghmd hmd' = do
     ++ " R : "
     ++ (show recommenedTex1Size)
   let !renderTargetSizeW = (si_w recommenedTex0Size)
-                        + (si_w recommenedTex1Size)
+                         + (si_w recommenedTex1Size)
       !renderTargetSizeH = max (si_h recommenedTex0Size)
-                              (si_h recommenedTex1Size)
+                               (si_h recommenedTex1Size)
       twidth = fromIntegral renderTargetSizeW
       theight = fromIntegral renderTargetSizeH
   !tex <- genColorTexture 0 twidth theight
@@ -143,11 +142,11 @@ mainProcess ghmd hmd' = do
   ovrHmd_RecenterPose hmd
   mainLoop hmd ghmd glhdl (eyeTexture,tex,fbo) eyeRD 0
   --
-  ovrHmd_ConfigureRendering hmd Nothing caps [lfv,rfv]
+  (_success, _ovrEyeRenderDescs) <- ovrHmd_ConfigureRendering hmd Nothing caps [lfv,rfv]
   return ()
   where
 
-
+genColorTexture :: GLuint -> GLsizei -> GLsizei -> IO TextureObject
 genColorTexture textureUnitNo width height = do
   tex <- genObjectName 
   withTexturesAt Texture2D [(tex,textureUnitNo)] $ do
@@ -160,6 +159,7 @@ genColorTexture textureUnitNo width height = do
     --textureMaxAnisotropy Texture2D $= 1.0
   return tex
 
+genColorFrameBuffer :: TextureObject -> GLsizei -> GLsizei -> IO FramebufferObject
 genColorFrameBuffer tex width height = do
   traceIO $ "tex size = " ++ (show (width,height))
   !fbo <- genObjectName :: IO FramebufferObject
@@ -180,10 +180,11 @@ genColorFrameBuffer tex width height = do
   bindFramebuffer Framebuffer $= defaultFramebufferObject
   return fbo
 
+genEyeTextureData :: TextureObject -> Int -> Int -> [OvrTexture]
 genEyeTextureData tex width height = 
-  [ OvrTexture hd0 texID , OvrTexture hd1 texID ]
+  [ OvrTexture hd0 textureID , OvrTexture hd1 textureID ]
   where
-    texID = (\ (TextureObject t') -> t' ) tex
+    textureID = (\ (TextureObject t') -> t' ) tex
     vpSize = OvrSizei (div width 2) height
     hd0 = OvrTextureHeader
              { apiT = ovrRenderAPI_OpenGL
@@ -197,16 +198,23 @@ genEyeTextureData tex width height =
              }
 
 
+mainLoop :: OvrHmd
+         -> GLFWHandle
+         -> (ShaderProgram, VertexArrayObject, VertexArrayObject)
+         -> ([OvrTexture], t, FramebufferObject)
+         -> [OvrEyeRenderDesc]
+         -> Word32
+         -> IO ()
 mainLoop hmd glfwHdl glhdl (eyeTexture,texobj,fbo) eyeRD frameNo = do
   pollGLFW
   threadDelay 1000
   --threadDelay 1000000
-  dt <- getDeltTime glfwHdl
+  _dt <- getDeltTime glfwHdl
   exitflg' <- getExitReqGLFW glfwHdl
 
   --ts <- ovrHmd_GetTrackingState hmd =<< ovr_GetTimeInSeconds
   --traceIO $ show ts
-  ovrHmd_BeginFrame hmd frameNo
+  _frameTiming <- ovrHmd_BeginFrame hmd frameNo
   bindFramebuffer Framebuffer $= fbo
   viewport $= (Position 0 0, Size 1920 1080)
   clear [GL.ColorBuffer, GL.DepthBuffer]
@@ -222,7 +230,7 @@ mainLoop hmd glfwHdl glhdl (eyeTexture,texobj,fbo) eyeRD frameNo = do
     matrixMode $= Modelview 0
     --traceIO $ "pose : " ++ (show eyeType) ++ " : " ++ (show pose)
     --textureBinding Texture2D $= Just texobj
-    let fov' = fov $ head eyeRD 
+    let _fov' = fov $ head eyeRD 
         vPos = if eyeType == ovrEye_Left
                 then Position 0 0
                 else Position 1182 0
