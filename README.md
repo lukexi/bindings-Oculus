@@ -7,7 +7,7 @@ Overview
 ## Description
  (T.B.D....)
 
-## Requirement
+## Requirements
 
 * [Oculus SDK and runtime](https://developer.oculus.com/)
 * (WINDOWS) [libovr_dll_0.4.4.zip](http://www.jspenguin.org/software/ovrsdk/)
@@ -30,6 +30,14 @@ Overview
   1. run sample program. `cabal run sample1`
   1. set Display Mode to "Direct HMD Access form Apps" (Windows only)
   1. run sample program. `cabal run sample2`           (Windows only)
+
+## Note
+If you'd like to update the OculusSDK and I haven't gotten around to it yet 
+(...assuming things haven't changed too much in the SDK):
+1. Unzip the latest SDK as before
+1. Edit `findOculusSDKSources.sh` with the SDK folder name
+1. Run `findOculusSDKSources.sh` and copy the results into bindings-Oculus.cabal
+    under `c-sources:`
 
 ![screen capture](bindings-Oculus-sample2.png)
 
