@@ -1,5 +1,3 @@
-{-# LANGUAGE BangPatterns #-}
-
 module Main where
 
 import Bindings.OculusRift
@@ -55,55 +53,48 @@ startupTestThreads = forM_ [0..100] $ \i ->
 setupOculus :: GLFW.Window -> OvrHmd -> IO ()
 setupOculus win hmd = do
   traceIO $ "create hmd OK : " ++ (show hmd)
-  !msg <- ovrHmd_GetLastError hmd
+  msg <- ovrHmd_GetLastError hmd
   traceIO $ "GetLastError = " ++ msg ++ " Msg End"
   traceIO " == Print HmdDesc =="
   hmdDesc <- castToOvrHmdDesc hmd
   printHmdDesc hmdDesc
   traceIO " ==================="
-  !r <- ovrHmd_ConfigureTracking hmd
+  r <- ovrHmd_ConfigureTracking hmd
                ( ovrTrackingCap_Orientation  
                .|. ovrTrackingCap_MagYawCorrection
                .|. ovrTrackingCap_Position)
                ovrTrackingCap_None
   traceIO $ "ConfigureTracking : " ++ (show r)
   
-  recommenedTex0Size <- ovrHmd_GetDefaultFovTextureSize
-                          hmd ovrEye_Left 1.0
-  recommenedTex1Size <- ovrHmd_GetDefaultFovTextureSize
-                          hmd ovrEye_Right 1.0
-  traceIO $ "recommentedTexSize L : "
-    ++ (show recommenedTex0Size)
-    ++ " R : "
-    ++ (show recommenedTex1Size)
-  let !renderTargetSizeW = (si_w recommenedTex0Size)
-                         + (si_w recommenedTex1Size)
-      !renderTargetSizeH = max (si_h recommenedTex0Size)
-                               (si_h recommenedTex1Size)
+  recommenedTex0Size <- ovrHmd_GetDefaultFovTextureSize hmd ovrEye_Left 1.0
+  recommenedTex1Size <- ovrHmd_GetDefaultFovTextureSize hmd ovrEye_Right 1.0
+  let renderTargetSizeW = (si_w recommenedTex0Size)
+                        + (si_w recommenedTex1Size)
+      renderTargetSizeH = max (si_h recommenedTex0Size)
+                              (si_h recommenedTex1Size)
       twidth = fromIntegral renderTargetSizeW
       theight = fromIntegral renderTargetSizeH
-  !tex <- genColorTexture 0 twidth theight
-  !fbo <- genColorFrameBuffer tex twidth theight 
+  tex <- genColorTexture 0 twidth theight
+  fbo <- genColorFrameBuffer tex twidth theight 
   --
-  let !eyeTexture = genEyeTextureData tex renderTargetSizeW
+  let eyeTexture = genEyeTextureData tex renderTargetSizeW
                                           renderTargetSizeH
-      !hd = OvrRenderAPIConfigHeader
+      hd = OvrRenderAPIConfigHeader
                    ovrRenderAPI_OpenGL
                    (resolution hmdDesc) 
                    0 --  1
-      !apiconf = OvrRenderAPIConfig hd Nothing Nothing -- (Just hwnd) (Just hdc)
-      !caps =    ovrDistortionCap_TimeWarp
+      apiconf = OvrRenderAPIConfig hd Nothing Nothing
+      caps =    ovrDistortionCap_TimeWarp
              .|. ovrDistortionCap_Vignette
              .|. ovrDistortionCap_NoRestore
              .|. ovrDistortionCap_SRGB
              .|. ovrDistortionCap_Overdrive 
              .|. ovrDistortionCap_HqDistortion
   traceIO $ "OvrEyeTexture : " ++ (show eyeTexture)
-  traceIO $ "OvrRenderAPIConfigHeader : " ++ (show hd)
-  traceIO $ "render caps : " ++ (show caps)
-  !lfv <- ovrHmd_GetDefaultFov hmd ovrEye_Left
-  !rfv <- ovrHmd_GetDefaultFov hmd ovrEye_Right
-  !(bret, eyeRD) <- ovrHmd_ConfigureRendering hmd
+  
+  lfv <- ovrHmd_GetDefaultFov hmd ovrEye_Left
+  rfv <- ovrHmd_GetDefaultFov hmd ovrEye_Right
+  (bret, eyeRD) <- ovrHmd_ConfigureRendering hmd
                     (Just apiconf) caps [lfv,rfv]
   traceIO $ "ConfigureRendering : " ++ (show (bret,eyeRD))
   --
@@ -127,19 +118,18 @@ genColorTexture textureUnitNo width height = do
   tex <- genObjectName 
   withTexturesAt Texture2D [(tex,textureUnitNo)] $ do
     texImage2D Texture2D NoProxy 0 RGBA'
-             (TextureSize2D width height) 0
-             (PixelData RGBA UnsignedByte nullPtr) 
+              (TextureSize2D width height) 0
+              (PixelData RGBA UnsignedByte nullPtr) 
     textureFilter Texture2D $= ((Nearest, Nothing), Nearest)
     texture2DWrap $= (Repeated, ClampToEdge)
   return tex
 
 genColorFrameBuffer :: TextureObject -> GLsizei -> GLsizei -> IO FramebufferObject
 genColorFrameBuffer tex width height = do
-  traceIO $ "tex size = " ++ (show (width,height))
-  !fbo <- genObjectName :: IO FramebufferObject
+  fbo <- genObjectName :: IO FramebufferObject
   bindFramebuffer Framebuffer $= fbo
 
-  !rbo <- genObjectName :: IO RenderbufferObject 
+  rbo <- genObjectName :: IO RenderbufferObject 
   bindRenderbuffer Renderbuffer $= rbo
   renderbufferStorage Renderbuffer DepthComponent'
                       (RenderbufferSize width height)
@@ -194,8 +184,8 @@ mainLoop win hmd (eyeTexture,texobj,fbo) eyeRD (twidth, theight) frameNo = do
   
   bindFramebuffer Framebuffer $= defaultFramebufferObject      
   
-  withViewport (Position 0 0) (Size frameW frameH) $
-    ovrHmd_EndFrame hmd poses eyeTexture
+  viewport $= (Position 0 0, Size frameW frameH)
+  ovrHmd_EndFrame hmd poses eyeTexture
 
   mainLoop win hmd (eyeTexture,texobj,fbo) eyeRD (twidth, theight) (frameNo + 1)
 
