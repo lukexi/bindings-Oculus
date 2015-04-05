@@ -2,7 +2,7 @@
 -- Copyright : (c) T.Mishima 2014
 -- License : Apache-2.0
 --
-#include "OVR_CAPI.h"
+#include "OVR_CAPI_0_5_0.h"
 {-# LANGUAGE CPP, ForeignFunctionInterface #-}
 module Bindings.OculusRift.Types where
 
@@ -289,7 +289,6 @@ instance Bits OvrTrackingCaps where
 newtype OvrDistortionCaps = OvrDistortionCaps { _distortion :: Word32 }
   deriving (Show,Eq)
 #{ enum OvrDistortionCaps , OvrDistortionCaps,
-    ovrDistortionCap_Chromatic	= ovrDistortionCap_Chromatic,
     ovrDistortionCap_TimeWarp	= ovrDistortionCap_TimeWarp,
     ovrDistortionCap_Vignette	= ovrDistortionCap_Vignette,
     ovrDistortionCap_NoRestore  = ovrDistortionCap_NoRestore,
@@ -299,7 +298,8 @@ newtype OvrDistortionCaps = OvrDistortionCaps { _distortion :: Word32 }
     ovrDistortionCap_HqDistortion = ovrDistortionCap_HqDistortion,
     ovrDistortionCap_LinuxDevFullscreen = ovrDistortionCap_LinuxDevFullscreen,
     ovrDistortionCap_ComputeShader = ovrDistortionCap_ComputeShader,
-    ovrDistortionCap_ProfileNoTimewarpSpinWaits = ovrDistortionCap_ProfileNoTimewarpSpinWaits
+    ovrDistortionCap_TimewarpJitDelay = ovrDistortionCap_TimewarpJitDelay,
+    ovrDistortionCap_ProfileNoSpinWaits = ovrDistortionCap_ProfileNoSpinWaits
  }
 instance Bits OvrDistortionCaps where
   (OvrDistortionCaps a) .|. (OvrDistortionCaps b) = OvrDistortionCaps (a .|. b)

@@ -3,7 +3,7 @@
 -- License : Apache-2.0
 */
 #include <memory.h>
-#include "OVR_CAPI.h"
+#include "OVR_CAPI_0_5_0.h"
 
 ovrBool _ovr_InitializeRenderingShim()
 {
@@ -11,7 +11,7 @@ ovrBool _ovr_InitializeRenderingShim()
 }
 ovrBool _ovr_Initialize()
 {
-        return ovr_Initialize();
+        return ovr_Initialize(NULL);
 }
 void _ovr_Shutdown()
 {
@@ -234,16 +234,18 @@ void _ovrHmd_GetEyeTimewarpMatrices(ovrHmd hmd, ovrEyeType eye,
         ovrHmd_GetEyeTimewarpMatrices(hmd, eye, renderPose, twmOut);
 }
 void _ovrHmd_GetEyeTimewarpMatricesDebug(ovrHmd hmd, ovrEyeType eye,
-                        ovrPosef* pRenderPose, ovrMatrix4f* pTwmOut,
+                        ovrPosef* pRenderPose, ovrQuatf* pPlayerTorsoMotion, ovrMatrix4f* pTwmOut,
                         double debugTimingOffsetInSeconds)
 {
         ovrPosef renderPose;
+        ovrQuatf playerTorsoMotion;
         ovrMatrix4f twmOut[2];
 
         memcpy(&renderPose, pRenderPose, sizeof(ovrPosef));
+        memcpy(&playerTorsoMotion, pPlayerTorsoMotion, sizeof(ovrQuatf));
         memcpy(twmOut, pTwmOut, sizeof(ovrMatrix4f) * 2);
 
-        ovrHmd_GetEyeTimewarpMatricesDebug(hmd, eye, renderPose, twmOut,
+        ovrHmd_GetEyeTimewarpMatricesDebug(hmd, eye, renderPose, playerTorsoMotion, twmOut,
                                       debugTimingOffsetInSeconds);
 }
 

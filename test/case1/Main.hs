@@ -104,15 +104,14 @@ mainProcess ghmd hmd' = do
                    (resolution hmdDesc) 
                    0 --  1
       !apiconf = OvrRenderAPIConfig hd Nothing Nothing -- (Just hwnd) (Just hdc)
-      !caps =     ovrDistortionCap_Chromatic
-             .|. ovrDistortionCap_TimeWarp
+      !caps =    ovrDistortionCap_TimeWarp
              .|. ovrDistortionCap_Vignette
              .|. ovrDistortionCap_NoRestore
          --    .|. ovrDistortionCap_FlipInput 
              .|. ovrDistortionCap_SRGB
              .|. ovrDistortionCap_Overdrive 
              .|. ovrDistortionCap_HqDistortion
-             .|. ovrDistortionCap_ProfileNoTimewarpSpinWaits 
+             .|. ovrDistortionCap_ProfileNoSpinWaits 
   traceIO $ "OvrEyeTexture : " ++ (show eyeTexture)
   traceIO $ "OvrRenderAPIConfigHeader : " ++ (show hd)
   traceIO $ "render caps : " ++ (show caps)

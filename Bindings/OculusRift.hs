@@ -83,7 +83,7 @@ ovr_InitializeRenderingShim = fmap ovrBool2Bool c_ovr_InitializeRenderingShim
 -- Initializes all Oculus functionality.
 --
 ovr_Initialize :: IO Bool
-ovr_Initialize = fmap ovrBool2Bool c_ovr_Initialize 
+ovr_Initialize = fmap ovrBool2Bool c_ovr_Initialize
 
 -- | Shuts down all Oculus functionality.
 --

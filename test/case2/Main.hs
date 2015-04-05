@@ -118,11 +118,10 @@ mainProcess ghmd hmd' = do
          --    .|. ovrDistortionCap_SRGB
              .|. ovrDistortionCap_Overdrive 
              .|. ovrDistortionCap_TimeWarp
-             .|. ovrDistortionCap_ProfileNoTimewarpSpinWaits 
+         --    .|. ovrDistortionCap_ProfileNoSpinWaits 
              .|. ovrDistortionCap_HqDistortion
          --    .|. ovrDistortionCap_ComputeShader
          --
-         --    .|. ovrDistortionCap_Chromatic
          --    .|. ovrDistortionCap_NoRestore
          --    .|. ovrDistortionCap_FlipInput 
   traceIO $ "OvrEyeTexture : " ++ show eyeTexture
