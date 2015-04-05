@@ -10,7 +10,6 @@ import Debug.Trace ( traceIO )
 
 import Data.Maybe ( isJust,fromJust )
 import Data.Bits 
-import Control.Concurrent (threadDelay)
 
 import GLFWWindow
 import GLView
@@ -139,7 +138,7 @@ mainProcess ghmd hmd' = do
   traceIO $ "GetLastError 2 = " ++ msg2 ++ " Msg End"
   printError 
   ovrHmd_RecenterPose hmd
-  mainLoop hmd ghmd glhdl (eyeTexture,tex,fbo) eyeRD 0
+  mainLoop hmd ghmd glhdl (eyeTexture,tex,fbo) eyeRD (twidth, theight) 0
   --
   (_success, _ovrEyeRenderDescs) <- ovrHmd_ConfigureRendering hmd Nothing caps [lfv,rfv]
   return ()
@@ -202,12 +201,12 @@ mainLoop :: OvrHmd
          -> (ShaderProgram, VertexArrayObject, VertexArrayObject)
          -> ([OvrTexture], t, FramebufferObject)
          -> [OvrEyeRenderDesc]
+         -> (GLsizei, GLsizei)
          -> Word32
          -> IO ()
-mainLoop hmd glfwHdl glhdl (eyeTexture,texobj,fbo) eyeRD frameNo = do
+mainLoop hmd glfwHdl glhdl (eyeTexture,texobj,fbo) eyeRD (twidth, theight) frameNo = do
   pollGLFW
-  threadDelay 1000
-  --threadDelay 1000000
+  
   _dt <- getDeltTime glfwHdl
   exitflg' <- getExitReqGLFW glfwHdl
 
@@ -229,11 +228,12 @@ mainLoop hmd glfwHdl glhdl (eyeTexture,texobj,fbo) eyeRD frameNo = do
     matrixMode $= Modelview 0
     --traceIO $ "pose : " ++ (show eyeType) ++ " : " ++ (show pose)
     --textureBinding Texture2D $= Just texobj
+    let halfWidth = twidth `div` 2
     let _fov' = fov $ head eyeRD 
         vPos = if eyeType == ovrEye_Left
                 then Position 0 0
-                else Position 1182 0
-    withViewport vPos (Size 1182 1461) $ render glhdl 
+                else Position halfWidth 0
+    withViewport vPos (Size halfWidth theight) $ render glhdl 
     return pose
   flush
   bindFramebuffer Framebuffer $= defaultFramebufferObject      
@@ -241,12 +241,11 @@ mainLoop hmd glfwHdl glhdl (eyeTexture,texobj,fbo) eyeRD frameNo = do
   --traceIO $ "eyeTexture = " ++ (show eyeTexture) 
   withViewport (Position 0 0) (Size 1920 1080) $
     ovrHmd_EndFrame hmd renderPose eyeTexture
-  --swapBuff glfwHdl
   --msg <- ovrHmd_GetLastError hmd
   --traceIO $ "GetLastError 3 = " ++ msg ++ " Msg End"
   --printError
   if exitflg' 
     then return ()
-    else mainLoop hmd glfwHdl glhdl (eyeTexture,texobj,fbo) eyeRD (frameNo + 1)
+    else mainLoop hmd glfwHdl glhdl (eyeTexture,texobj,fbo) eyeRD (twidth, theight) (frameNo + 1)
 
 
