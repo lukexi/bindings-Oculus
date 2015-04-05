@@ -289,8 +289,8 @@ instance Bits OvrTrackingCaps where
 newtype OvrDistortionCaps = OvrDistortionCaps { _distortion :: Word32 }
   deriving (Show,Eq)
 #{ enum OvrDistortionCaps , OvrDistortionCaps,
-    ovrDistortionCap_TimeWarp	= ovrDistortionCap_TimeWarp,
-    ovrDistortionCap_Vignette	= ovrDistortionCap_Vignette,
+    ovrDistortionCap_TimeWarp   = ovrDistortionCap_TimeWarp,
+    ovrDistortionCap_Vignette   = ovrDistortionCap_Vignette,
     ovrDistortionCap_NoRestore  = ovrDistortionCap_NoRestore,
     ovrDistortionCap_FlipInput  = ovrDistortionCap_FlipInput,
     ovrDistortionCap_SRGB       = ovrDistortionCap_SRGB,

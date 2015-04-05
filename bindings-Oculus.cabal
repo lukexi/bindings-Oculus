@@ -25,80 +25,19 @@ library
                      csrc/dso_handle.c    
   exposed-modules:   Bindings.OculusRift
                      Bindings.OculusRift.Types
-  
+  ghc-options: -Wall -O2
+  include-dirs: include
   if os(windows)
-    ghc-options: -Wall -O2
     c-sources:       csrc/win.c
     exposed-modules: Bindings.Utils.Windows
     extra-lib-dirs: .
     extra-libraries:   OVRRT64_0_5
-    include-dirs:
-      ovr_sdk_win_0.5.0.1/OculusSDK/LibOVR/Include
+    
   if os(osx)
-    ghc-options: -Wall -O2
     extra-libraries: c++
-    include-dirs:
-      OculusSDK-0.4.4/LibOVR/Include
-      OculusSDK-0.4.4/LibOVR/Src
-    c-sources:
-      OculusSDK-0.4.4/LibOVR/Src/CAPI/CAPI_DistortionRenderer.cpp
-      OculusSDK-0.4.4/LibOVR/Src/CAPI/CAPI_FrameTimeManager.cpp
-      OculusSDK-0.4.4/LibOVR/Src/CAPI/CAPI_HMDRenderState.cpp
-      OculusSDK-0.4.4/LibOVR/Src/CAPI/CAPI_HMDState.cpp
-      OculusSDK-0.4.4/LibOVR/Src/CAPI/CAPI_HSWDisplay.cpp
-      OculusSDK-0.4.4/LibOVR/Src/CAPI/CAPI_LatencyStatistics.cpp
-      OculusSDK-0.4.4/LibOVR/Src/CAPI/GL/CAPI_GL_DistortionRenderer.cpp
-      OculusSDK-0.4.4/LibOVR/Src/CAPI/GL/CAPI_GL_HSWDisplay.cpp
-      OculusSDK-0.4.4/LibOVR/Src/CAPI/GL/CAPI_GL_Util.cpp
-      OculusSDK-0.4.4/LibOVR/Src/CAPI/GL/CAPI_GLE.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Displays/OVR_Display.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Displays/OVR_OSX_Display.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Kernel/OVR_Alg.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Kernel/OVR_Allocator.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Kernel/OVR_Atomic.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Kernel/OVR_CRC32.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Kernel/OVR_DebugHelp.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Kernel/OVR_File.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Kernel/OVR_FileFILE.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Kernel/OVR_Lockless.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Kernel/OVR_Log.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Kernel/OVR_mach_exc_OSX.c
-      OculusSDK-0.4.4/LibOVR/Src/Kernel/OVR_Math.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Kernel/OVR_RefCount.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Kernel/OVR_SharedMemory.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Kernel/OVR_Std.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Kernel/OVR_String.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Kernel/OVR_String_FormatUtil.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Kernel/OVR_String_PathUtil.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Kernel/OVR_SysFile.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Kernel/OVR_System.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Kernel/OVR_ThreadCommandQueue.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Kernel/OVR_ThreadsPthread.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Kernel/OVR_Timer.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Kernel/OVR_UTF8Util.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Net/OVR_BitStream.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Net/OVR_NetworkPlugin.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Net/OVR_PacketizedTCPSocket.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Net/OVR_RPC1.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Net/OVR_Session.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Net/OVR_Socket.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Net/OVR_Unix_Socket.cpp
-      OculusSDK-0.4.4/LibOVR/Src/OVR_CAPI.cpp
-      OculusSDK-0.4.4/LibOVR/Src/OVR_JSON.cpp
-      OculusSDK-0.4.4/LibOVR/Src/OVR_Profile.cpp
-      OculusSDK-0.4.4/LibOVR/Src/OVR_SerialFormat.cpp
-      OculusSDK-0.4.4/LibOVR/Src/OVR_Stereo.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Service/Service_NetClient.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Service/Service_NetSessionCommon.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Tracking/Tracking_SensorStateReader.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Util/Util_ImageWindow.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Util/Util_Interface.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Util/Util_LatencyTest2Reader.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Util/Util_Render_Stereo.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Util/Util_SystemGUI.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Util/Util_SystemGUI_OSX.mm
-      OculusSDK-0.4.4/LibOVR/Src/Util/Util_SystemInfo.cpp
-      OculusSDK-0.4.4/LibOVR/Src/Util/Util_SystemInfo_OSX.mm
+    -- Note: Oculus currently installs this in ~/Library/Frameworks, but you'll need to move it
+    -- to /Library/Frameworks for it to be found
+    frameworks: LibOVRRT_0 
   other-extensions:    BangPatterns, CPP, ForeignFunctionInterface
   build-depends:       base >=4.7
   build-tools:         hsc2hs
