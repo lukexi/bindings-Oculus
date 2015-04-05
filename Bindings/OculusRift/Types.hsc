@@ -2,7 +2,7 @@
 -- Copyright : (c) T.Mishima 2014
 -- License : Apache-2.0
 --
-#include "OVR_CAPI.h"
+#include "OVR_CAPI_0_5_0.h"
 {-# LANGUAGE CPP, ForeignFunctionInterface #-}
 module Bindings.OculusRift.Types where
 
@@ -289,7 +289,6 @@ instance Bits OvrTrackingCaps where
 newtype OvrDistortionCaps = OvrDistortionCaps { _distortion :: Word32 }
   deriving (Show,Eq)
 #{ enum OvrDistortionCaps , OvrDistortionCaps,
-    ovrDistortionCap_Chromatic	= ovrDistortionCap_Chromatic,
     ovrDistortionCap_TimeWarp	= ovrDistortionCap_TimeWarp,
     ovrDistortionCap_Vignette	= ovrDistortionCap_Vignette,
     ovrDistortionCap_NoRestore  = ovrDistortionCap_NoRestore,
@@ -299,7 +298,8 @@ newtype OvrDistortionCaps = OvrDistortionCaps { _distortion :: Word32 }
     ovrDistortionCap_HqDistortion = ovrDistortionCap_HqDistortion,
     ovrDistortionCap_LinuxDevFullscreen = ovrDistortionCap_LinuxDevFullscreen,
     ovrDistortionCap_ComputeShader = ovrDistortionCap_ComputeShader,
-    ovrDistortionCap_ProfileNoTimewarpSpinWaits = ovrDistortionCap_ProfileNoTimewarpSpinWaits
+    ovrDistortionCap_TimewarpJitDelay = ovrDistortionCap_TimewarpJitDelay,
+    ovrDistortionCap_ProfileNoSpinWaits = ovrDistortionCap_ProfileNoSpinWaits
  }
 instance Bits OvrDistortionCaps where
   (OvrDistortionCaps a) .|. (OvrDistortionCaps b) = OvrDistortionCaps (a .|. b)
@@ -678,15 +678,15 @@ foreign import ccall unsafe "_ovrHmd_GetFovTextureSize" c_ovrHmd_GetFovTextureSi
 -------------------------------------------------------------------------------------
 -- | *****  SDK Distortion Rendering Functions
 
-foreign import ccall unsafe "_ovrHmd_ConfigureRendering" c_ovrHmd_ConfigureRendering :: OvrHmd -> Ptr OvrRenderAPIConfig -> CUInt -> Ptr OvrFovPort -> Ptr OvrEyeRenderDesc -> IO OvrBool
+foreign import ccall safe "_ovrHmd_ConfigureRendering" c_ovrHmd_ConfigureRendering :: OvrHmd -> Ptr OvrRenderAPIConfig -> CUInt -> Ptr OvrFovPort -> Ptr OvrEyeRenderDesc -> IO OvrBool
 
-foreign import ccall unsafe "_ovrHmd_BeginFrame" c_ovrHmd_BeginFrame :: OvrHmd -> CUInt -> IO (Ptr OvrFrameTiming)
+foreign import ccall safe "_ovrHmd_BeginFrame" c_ovrHmd_BeginFrame :: OvrHmd -> CUInt -> IO (Ptr OvrFrameTiming)
 
-foreign import ccall unsafe "_ovrHmd_EndFrame" c_ovrHmd_EndFrame :: OvrHmd -> Ptr OvrPosef -> Ptr OvrTexture -> IO ()
+foreign import ccall safe "_ovrHmd_EndFrame" c_ovrHmd_EndFrame :: OvrHmd -> Ptr OvrPosef -> Ptr OvrTexture -> IO ()
 
-foreign import ccall unsafe "_ovrHmd_GetEyePoses" c_ovrHmd_GetEyePoses :: OvrHmd -> CUInt -> Ptr OvrVector3f -> Ptr OvrTrackingState -> IO (Ptr OvrPosef)
+foreign import ccall safe "_ovrHmd_GetEyePoses" c_ovrHmd_GetEyePoses :: OvrHmd -> CUInt -> Ptr OvrVector3f -> Ptr OvrTrackingState -> IO (Ptr OvrPosef)
 
-foreign import ccall unsafe "_ovrHmd_GetHmdPosePerEye" c_ovrHmd_GetHmdPosePerEye :: OvrHmd -> CInt -> IO (Ptr OvrPosef)
+foreign import ccall safe "_ovrHmd_GetHmdPosePerEye" c_ovrHmd_GetHmdPosePerEye :: OvrHmd -> CInt -> IO (Ptr OvrPosef)
 
 -------------------------------------------------------------------------------------
 -- *****  Client Distortion Rendering Functions

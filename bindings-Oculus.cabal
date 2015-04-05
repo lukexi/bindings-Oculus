@@ -28,7 +28,10 @@ library
     ghc-options: -Wall -O2
     c-sources:       csrc/win.c
     exposed-modules: Bindings.Utils.Windows
-    extra-libraries:   libovr
+    extra-lib-dirs: .
+    extra-libraries:   OVRRT64_0_5
+    include-dirs:
+      ovr_sdk_win_0.5.0.1/OculusSDK/LibOVR/Include
   if os(osx)
     ghc-options: -Wall -O2
     extra-libraries: c++
@@ -115,7 +118,10 @@ executable sample1
     other-modules:       Bindings.OculusRift
                          Bindings.OculusRift.Types
     c-sources:           csrc/ovrsdk.c
-    extra-libraries:     libovr
+    include-dirs:
+      ovr_sdk_win_0.5.0.1/OculusSDK/LibOVR/Include
+    extra-lib-dirs: C:\Windows\System32
+    extra-libraries:     OVRRT64_0_5 kernel32
     hs-source-dirs:      .
 
 
@@ -128,14 +134,17 @@ executable sample2
   build-depends:       base >=4.7 && <4.8 , GLFW-b , OpenGL ,
                        GLUtil , linear
   default-language:    Haskell2010
-  ghc-options:         -Wall -O2
+  ghc-options:         -Wall -O2 -threaded
   if os(osx)
     build-depends: bindings-Oculus
     buildable: False
   if os(windows)
-    extra-libraries:     libovr
+    extra-lib-dirs: .
+    extra-libraries:     OVRRT64_0_5 
     c-sources:           csrc/ovrsdk.c
                          csrc/win.c
+    include-dirs:
+      ovr_sdk_win_0.5.0.1/OculusSDK/LibOVR/Include
     other-modules:       Bindings.OculusRift
                          Bindings.OculusRift.Types
                          Bindings.Utils.Windows
