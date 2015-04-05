@@ -678,15 +678,15 @@ foreign import ccall unsafe "_ovrHmd_GetFovTextureSize" c_ovrHmd_GetFovTextureSi
 -------------------------------------------------------------------------------------
 -- | *****  SDK Distortion Rendering Functions
 
-foreign import ccall unsafe "_ovrHmd_ConfigureRendering" c_ovrHmd_ConfigureRendering :: OvrHmd -> Ptr OvrRenderAPIConfig -> CUInt -> Ptr OvrFovPort -> Ptr OvrEyeRenderDesc -> IO OvrBool
+foreign import ccall safe "_ovrHmd_ConfigureRendering" c_ovrHmd_ConfigureRendering :: OvrHmd -> Ptr OvrRenderAPIConfig -> CUInt -> Ptr OvrFovPort -> Ptr OvrEyeRenderDesc -> IO OvrBool
 
-foreign import ccall unsafe "_ovrHmd_BeginFrame" c_ovrHmd_BeginFrame :: OvrHmd -> CUInt -> IO (Ptr OvrFrameTiming)
+foreign import ccall safe "_ovrHmd_BeginFrame" c_ovrHmd_BeginFrame :: OvrHmd -> CUInt -> IO (Ptr OvrFrameTiming)
 
-foreign import ccall unsafe "_ovrHmd_EndFrame" c_ovrHmd_EndFrame :: OvrHmd -> Ptr OvrPosef -> Ptr OvrTexture -> IO ()
+foreign import ccall safe "_ovrHmd_EndFrame" c_ovrHmd_EndFrame :: OvrHmd -> Ptr OvrPosef -> Ptr OvrTexture -> IO ()
 
-foreign import ccall unsafe "_ovrHmd_GetEyePoses" c_ovrHmd_GetEyePoses :: OvrHmd -> CUInt -> Ptr OvrVector3f -> Ptr OvrTrackingState -> IO (Ptr OvrPosef)
+foreign import ccall safe "_ovrHmd_GetEyePoses" c_ovrHmd_GetEyePoses :: OvrHmd -> CUInt -> Ptr OvrVector3f -> Ptr OvrTrackingState -> IO (Ptr OvrPosef)
 
-foreign import ccall unsafe "_ovrHmd_GetHmdPosePerEye" c_ovrHmd_GetHmdPosePerEye :: OvrHmd -> CInt -> IO (Ptr OvrPosef)
+foreign import ccall safe "_ovrHmd_GetHmdPosePerEye" c_ovrHmd_GetHmdPosePerEye :: OvrHmd -> CInt -> IO (Ptr OvrPosef)
 
 -------------------------------------------------------------------------------------
 -- *****  Client Distortion Rendering Functions
