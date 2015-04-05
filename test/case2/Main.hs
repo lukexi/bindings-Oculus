@@ -30,7 +30,9 @@ import Foreign.Ptr (nullPtr)
 import Linear.V4
 
 -------------
+#if defined(mingw32_HOST_OS)
 import Bindings.Utils.Windows
+#endif
 -------------
 
 winSize = (1920,1080)
@@ -52,7 +54,9 @@ main = bracket
         (do
           !maxIdx <- ovrHmd_Detect
           traceIO $ "detect = " ++ show maxIdx
-          !hmd <- ovrHmd_Create (maxIdx - 1)
+          !hmd <- if maxIdx > 0 
+            then ovrHmd_Create (maxIdx - 1)
+            else Just <$> ovrHmd_CreateDebug ovrHmd_DK2
           return hmd)
         (\ hmd' -> if isJust hmd' 
             then do
@@ -82,12 +86,17 @@ mainProcess ghmd hmd' = do
                ovrTrackingCap_None
   traceIO $ "ConfigureTracking : " ++ show r
   -- 
+#if defined(mingw32_HOST_OS)
   !hwnd <- getWindowHandle "oculus test" 
   traceIO $ "windowHandle : " ++ show hwnd
   -- !hdc <- getWinDC hwnd
   !ba <- ovrHmd_AttachToWindow hmd hwnd
                                Nothing Nothing 
+  let nativeWindow = Just hwnd
   traceIO $ "AttachToWindow : " ++ show (ba,hwnd)
+#else
+  let nativeWindow = Nothing
+#endif
   
   recommenedTex0Size <- ovrHmd_GetDefaultFovTextureSize
                           hmd ovrEye_Left 1.0
@@ -112,7 +121,7 @@ mainProcess ghmd hmd' = do
                    ovrRenderAPI_OpenGL
                    (resolution hmdDesc) 
                    0 --  1
-      !apiconf = OvrRenderAPIConfig hd (Just hwnd) Nothing --  (Just hdc)
+      !apiconf = OvrRenderAPIConfig hd nativeWindow Nothing --  (Just hdc)
       !caps =
                  ovrDistortionCap_Vignette
          --    .|. ovrDistortionCap_SRGB
