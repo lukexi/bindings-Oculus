@@ -5,69 +5,55 @@ module Main where
 import Bindings.OculusRift
 import Bindings.OculusRift.Types
 
-import Control.Exception ( bracket )
 import Debug.Trace ( traceIO )
 
-import Data.Maybe ( isJust,fromJust )
 import Data.Bits 
-
-import GLFWWindow
-import GLView
 
 import Graphics.Rendering.OpenGL as GL
 import Graphics.GLUtil
 import Foreign.Ptr (nullPtr)
-import Data.Traversable
 import Data.Foldable
 
 import Control.Concurrent
 import Control.Monad
 
+import qualified Graphics.UI.GLFW as GLFW
+
+setupGLFW :: IO (Maybe GLFW.Window)
+setupGLFW = do
+  _success <- GLFW.init
+  
+  GLFW.defaultWindowHints
+  GLFW.windowHint $ GLFW.WindowHint'ClientAPI GLFW.ClientAPI'OpenGL
+  GLFW.windowHint $ GLFW.WindowHint'OpenGLForwardCompat True
+  GLFW.windowHint $ GLFW.WindowHint'OpenGLProfile GLFW.OpenGLProfile'Core
+  GLFW.windowHint $ GLFW.WindowHint'ContextVersionMajor 3
+  GLFW.windowHint $ GLFW.WindowHint'ContextVersionMinor 2
+
+  win <- GLFW.createWindow 1920 1080 "CrashTest" Nothing Nothing
+  GLFW.makeContextCurrent win
+
+  GLFW.swapInterval 1
+  return win
+
 main :: IO ()
-main = bracket
-  (do
-    -- !b1 <- ovr_InitializeRenderingShim
-    !b2 <- ovr_Initialize
-    !ghmd <- initGLFW (1920,1080) "oculus test" False
-    return (b2,ghmd))
-  (\ (_,ghmd) -> do
-            ovr_Shutdown 
-            exitGLFW ghmd
-            traceIO "exit")
-  (\ (b,ghmd) -> if b == True
-    then do
-      traceIO "init OK"
-      bracket
-        (do
-          !maxIdx <- ovrHmd_Detect
-          -- traceIO $ "detect = " ++ (show maxIdx)
-          !hmd <- if maxIdx > 0 
-            then ovrHmd_Create (maxIdx - 1)
-            else Just <$> ovrHmd_CreateDebug ovrHmd_DK2
-          return hmd)
-        (\ hmd' -> do
-          if isJust hmd' 
-            then do
-              ovrHmd_Destroy $ fromJust hmd'
-              traceIO "destroy hmd"
-            else do
-              traceIO "hmd is Null"
-              return ())
-        (mainProcess ghmd)
-    else traceIO "init NG")
+main = do
+  _ <- ovr_Initialize
+  Just win <- setupGLFW
+  hmd <- ovrHmd_CreateDebug ovrHmd_DK2
 
-startupTestThreads = do
-  forM_ [0..100] $ \i -> forkIO . forever $ print i >> threadDelay 100000
-
-mainProcess :: GLFWHandle -> Maybe OvrHmd -> IO ()
-mainProcess _ Nothing = traceIO "create hmd NG"
-mainProcess ghmd hmd' = do
   startupTestThreads
 
+  clearColor $= Color4 1 0 0 1.0
 
+  setupOculus win hmd
 
-  !glhdl <- initGL
-  let hmd = fromJust hmd'
+startupTestThreads :: IO ()
+startupTestThreads = forM_ [0..100] $ \i -> 
+  forkIO . forever $ print (i::Int) >> threadDelay 100000
+
+setupOculus :: GLFW.Window -> OvrHmd -> IO ()
+setupOculus win hmd = do
   traceIO $ "create hmd OK : " ++ (show hmd)
   !msg <- ovrHmd_GetLastError hmd
   traceIO $ "GetLastError = " ++ msg ++ " Msg End"
@@ -81,13 +67,6 @@ mainProcess ghmd hmd' = do
                .|. ovrTrackingCap_Position)
                ovrTrackingCap_None
   traceIO $ "ConfigureTracking : " ++ (show r)
-  -- 
-  -- !hwnd <- getWindowHandle 
-  --  =<< fmap fromJust (getWindowHdl ghmd)
-  -- !hdc <- getWinDC hwnd
-  -- !ba <- ovrHmd_AttachToWindow hmd hwnd
-  --                            Nothing Nothing 
-  --traceIO $ "AttachToWindow : " ++ (show (ba,hwnd))
   
   recommenedTex0Size <- ovrHmd_GetDefaultFovTextureSize
                           hmd ovrEye_Left 1.0
@@ -116,11 +95,9 @@ mainProcess ghmd hmd' = do
       !caps =    ovrDistortionCap_TimeWarp
              .|. ovrDistortionCap_Vignette
              .|. ovrDistortionCap_NoRestore
-         --    .|. ovrDistortionCap_FlipInput 
              .|. ovrDistortionCap_SRGB
              .|. ovrDistortionCap_Overdrive 
              .|. ovrDistortionCap_HqDistortion
-             .|. ovrDistortionCap_ProfileNoSpinWaits 
   traceIO $ "OvrEyeTexture : " ++ (show eyeTexture)
   traceIO $ "OvrRenderAPIConfigHeader : " ++ (show hd)
   traceIO $ "render caps : " ++ (show caps)
@@ -131,28 +108,19 @@ mainProcess ghmd hmd' = do
   traceIO $ "ConfigureRendering : " ++ (show (bret,eyeRD))
   --
   ovrHmd_SetEnabledCaps hmd ( 
-   --     ovrHmdCap_Present          
-   -- .|. ovrHmdCap_Available
-   -- .|. ovrHmdCap_Captured
      ovrHmdCap_ExtendDesktop 
-   -- .|. ovrHmdCap_NoMirrorToWindow
-   -- .|. ovrHmdCap_DisplayOff
     .|. ovrHmdCap_LowPersistence
     .|. ovrHmdCap_DynamicPrediction
-   -- .|. ovrHmdCap_NoVSync          
     )
-  !tis <- ovr_GetTimeInSeconds
-  traceIO $ "GetTimeInSeconds : " ++ (show tis)
 
   msg2 <- ovrHmd_GetLastError hmd
   traceIO $ "GetLastError 2 = " ++ msg2 ++ " Msg End"
   printError 
   ovrHmd_RecenterPose hmd
-  mainLoop hmd ghmd glhdl (eyeTexture,tex,fbo) eyeRD (twidth, theight) 0
+  mainLoop win hmd (eyeTexture,tex,fbo) eyeRD (twidth, theight) 0
   --
   (_success, _ovrEyeRenderDescs) <- ovrHmd_ConfigureRendering hmd Nothing caps [lfv,rfv]
   return ()
-  where
 
 genColorTexture :: GLuint -> GLsizei -> GLsizei -> IO TextureObject
 genColorTexture textureUnitNo width height = do
@@ -163,8 +131,6 @@ genColorTexture textureUnitNo width height = do
              (PixelData RGBA UnsignedByte nullPtr) 
     textureFilter Texture2D $= ((Nearest, Nothing), Nearest)
     texture2DWrap $= (Repeated, ClampToEdge)
-    --textureBorderColor Texture2D $= Color4 1.0 0.0 0.0 (0.0::GLfloat)
-    --textureMaxAnisotropy Texture2D $= 1.0
   return tex
 
 genColorFrameBuffer :: TextureObject -> GLsizei -> GLsizei -> IO FramebufferObject
@@ -206,50 +172,31 @@ genEyeTextureData tex width height =
              }
 
 
-mainLoop :: OvrHmd
-         -> GLFWHandle
-         -> (ShaderProgram, VertexArrayObject, VertexArrayObject)
+mainLoop :: GLFW.Window
+         -> OvrHmd
          -> ([OvrTexture], t, FramebufferObject)
          -> [OvrEyeRenderDesc]
          -> (GLsizei, GLsizei)
          -> Word32
          -> IO ()
-mainLoop hmd glfwHdl glhdl (eyeTexture,texobj,fbo) eyeRD (twidth, theight) frameNo = do
-  pollGLFW
-  
-  _dt <- getDeltTime glfwHdl
-  exitflg' <- getExitReqGLFW glfwHdl
+mainLoop win hmd (eyeTexture,texobj,fbo) eyeRD (twidth, theight) frameNo = do
+  GLFW.pollEvents
 
-  --ts <- ovrHmd_GetTrackingState hmd =<< ovr_GetTimeInSeconds
-  --traceIO $ show ts
   _frameTiming <- ovrHmd_BeginFrame hmd frameNo
   bindFramebuffer Framebuffer $= fbo
 
-  (frameWI, frameHI) <- getFramebufferSize glfwHdl
+  (frameWI, frameHI) <- GLFW.getFramebufferSize win
   let (frameW, frameH) = (fromIntegral frameWI, fromIntegral frameHI)
   viewport $= (Position 0 0, Size frameW frameH)
   clear [GL.ColorBuffer, GL.DepthBuffer]
-  renderPose <- forM [ovrEye_Left,ovrEye_Right]
-                  $ \ eyeType -> do
-    pose <- ovrHmd_GetHmdPosePerEye hmd eyeType
-    
-    -- let halfWidth = twidth `div` 2
-    -- let _fov' = fov $ head eyeRD 
-    --     vPos = if eyeType == ovrEye_Left
-    --             then Position 0 0
-    --             else Position halfWidth 0
-    -- withViewport vPos (Size halfWidth theight) $ render glhdl 
-    return pose
+
+  poses <- ovrHmd_GetEyePoses hmd frameNo (map hmdToEyeViewOffset eyeRD)
+  
   bindFramebuffer Framebuffer $= defaultFramebufferObject      
-  --traceIO $ "renderPose = " ++ (show renderPose) 
-  --traceIO $ "eyeTexture = " ++ (show eyeTexture) 
+  
   withViewport (Position 0 0) (Size frameW frameH) $
-    ovrHmd_EndFrame hmd renderPose eyeTexture
-  --msg <- ovrHmd_GetLastError hmd
-  --traceIO $ "GetLastError 3 = " ++ msg ++ " Msg End"
-  --printError
-  if exitflg' 
-    then return ()
-    else mainLoop hmd glfwHdl glhdl (eyeTexture,texobj,fbo) eyeRD (twidth, theight) (frameNo + 1)
+    ovrHmd_EndFrame hmd poses eyeTexture
+
+  mainLoop win hmd (eyeTexture,texobj,fbo) eyeRD (twidth, theight) (frameNo + 1)
 
 

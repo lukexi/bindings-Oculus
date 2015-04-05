@@ -13,6 +13,7 @@ module GLFWWindow
   , setUIMode
   , togleUIMode
   , getWindowSize
+  , getFramebufferSize
   , swapBuff
   , getExitReqGLFW
   , exitGLFW
@@ -83,10 +84,11 @@ initGLFW winSize' winTitle' fullScreenSW = do
   --
   oldTime' <- newIORef 0.0 
   --
-  --GLFW.swapInterval 0
+  
   win <- createDefWindow winSize' fullScreenSW 
                          exitFlg' keyStat' uiMode' mouseStat' 
                          winTitle'
+  GLFW.swapInterval 1
   --
   winTitle'' <- newIORef winTitle'
   --
@@ -219,11 +221,14 @@ getDeltTime glfwHdl = do
 getWindowSize :: GLFWHandle -> IO (Int,Int)
 getWindowSize glfwHdl = 
   return $ winSize glfwHdl
-{-  winStat <- readIORef $ winHdl glfwHdl
+
+getFramebufferSize :: GLFWHandle -> IO (Int, Int)
+getFramebufferSize glfwHdl = do
+  winStat <- readIORef $ winHdl glfwHdl
   case winStat of
     (Just w,_) -> GLFW.getFramebufferSize w
     (Nothing,_) -> return (0,0)
--}
+
 
 exitGLFW :: GLFWHandle -> IO ()
 exitGLFW glfwHdl = do
