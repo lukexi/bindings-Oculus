@@ -84,14 +84,13 @@ setupOculus win hmd = do
   tex <- genColorTexture 0 twidth theight
   fbo <- genColorFrameBuffer tex twidth theight 
   --
-  let eyeTexture = genEyeTextureData tex renderTargetSizeW
-                                          renderTargetSizeH
+  let eyeTexture = genEyeTextureData tex renderTargetSizeW renderTargetSizeH
       hd = OvrRenderAPIConfigHeader
                    ovrRenderAPI_OpenGL
                    (resolution hmdDesc) 
                    0 --  1
       apiconf = OvrRenderAPIConfig hd Nothing Nothing
-      caps =    ovrDistortionCap_TimeWarp
+      caps =     ovrDistortionCap_TimeWarp
              .|. ovrDistortionCap_Vignette
              .|. ovrDistortionCap_NoRestore
              .|. ovrDistortionCap_SRGB
@@ -115,7 +114,7 @@ setupOculus win hmd = do
   traceIO $ "GetLastError 2 = " ++ msg2 ++ " Msg End"
   printError 
   ovrHmd_RecenterPose hmd
-  mainLoop win hmd (eyeTexture,tex,fbo) eyeRD (twidth, theight) 0
+  mainLoop win hmd (eyeTexture, fbo) (map hmdToEyeViewOffset eyeRD) (twidth, theight) 0
   --
   (_success, _ovrEyeRenderDescs) <- ovrHmd_ConfigureRendering hmd Nothing caps [lfv,rfv]
   return ()
@@ -171,12 +170,12 @@ genEyeTextureData tex width height =
 
 mainLoop :: GLFW.Window
          -> OvrHmd
-         -> ([OvrTexture], t, FramebufferObject)
-         -> [OvrEyeRenderDesc]
+         -> ([OvrTexture], FramebufferObject)
+         -> [OvrVector3f]
          -> (GLsizei, GLsizei)
          -> Word32
          -> IO ()
-mainLoop win hmd (eyeTexture,texobj,fbo) eyeRD (twidth, theight) frameNo = do
+mainLoop win hmd (eyeTexture, fbo) eyeViewOffsets (twidth, theight) frameNo = do
   GLFW.pollEvents
 
   _frameTiming <- ovrHmd_BeginFrame hmd frameNo
@@ -187,13 +186,13 @@ mainLoop win hmd (eyeTexture,texobj,fbo) eyeRD (twidth, theight) frameNo = do
   viewport $= (Position 0 0, Size frameW frameH)
   clear [GL.ColorBuffer, GL.DepthBuffer]
 
-  poses <- ovrHmd_GetEyePoses hmd frameNo (map hmdToEyeViewOffset eyeRD)
+  poses <- ovrHmd_GetEyePoses hmd frameNo eyeViewOffsets
   
   bindFramebuffer Framebuffer $= defaultFramebufferObject      
   
   viewport $= (Position 0 0, Size frameW frameH)
   ovrHmd_EndFrame hmd poses eyeTexture
 
-  mainLoop win hmd (eyeTexture,texobj,fbo) eyeRD (twidth, theight) (frameNo + 1)
+  mainLoop win hmd (eyeTexture, fbo) eyeViewOffsets (twidth, theight) (frameNo + 1)
 
 
