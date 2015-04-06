@@ -17,8 +17,8 @@ import Control.Monad
 
 import qualified Graphics.UI.GLFW as GLFW
 
-setupGLFW :: IO (Maybe GLFW.Window)
-setupGLFW = do
+setupGLFW :: (Int, Int) -> IO GLFW.Window
+setupGLFW (desiredW, desiredH) = do
   _success <- GLFW.init
   
   GLFW.defaultWindowHints
@@ -28,8 +28,13 @@ setupGLFW = do
   GLFW.windowHint $ GLFW.WindowHint'ContextVersionMajor 3
   GLFW.windowHint $ GLFW.WindowHint'ContextVersionMinor 2
 
-  win <- GLFW.createWindow 1920 1080 "CrashTest" Nothing Nothing
-  GLFW.makeContextCurrent win
+  let (halfW, halfH) = (desiredW `div` 2, desiredH `div` 2)
+  Just win <- GLFW.createWindow desiredW desiredH "CrashTest" Nothing Nothing
+  (frameW, frameH) <- GLFW.getFramebufferSize win
+  -- Compensate for retina framebuffers on Mac
+  when (frameW > desiredW && frameH > desiredH) $ GLFW.setWindowSize win halfW halfH
+
+  GLFW.makeContextCurrent (Just win)
 
   GLFW.swapInterval 1
   return win
@@ -37,10 +42,13 @@ setupGLFW = do
 main :: IO ()
 main = do
   _ <- ovr_Initialize
-  Just win <- setupGLFW
   hmd <- ovrHmd_CreateDebug ovrHmd_DK2
+  hmdDesc <- castToOvrHmdDesc hmd
+  let OvrSizei width height = resolution hmdDesc
+  win <- setupGLFW (fromIntegral width, fromIntegral height)
 
-  startupTestThreads
+
+  -- startupTestThreads
 
   clearColor $= Color4 1 0 0 1.0
 
@@ -55,16 +63,15 @@ setupOculus win hmd = do
   traceIO $ "create hmd OK : " ++ (show hmd)
   msg <- ovrHmd_GetLastError hmd
   traceIO $ "GetLastError = " ++ msg ++ " Msg End"
-  traceIO " == Print HmdDesc =="
+  -- traceIO " == Print HmdDesc =="
   hmdDesc <- castToOvrHmdDesc hmd
-  printHmdDesc hmdDesc
-  traceIO " ==================="
-  r <- ovrHmd_ConfigureTracking hmd
-               ( ovrTrackingCap_Orientation  
+  -- printHmdDesc hmdDesc
+  -- traceIO " ==================="
+  _r <- ovrHmd_ConfigureTracking hmd
+                  (ovrTrackingCap_Orientation  
                .|. ovrTrackingCap_MagYawCorrection
                .|. ovrTrackingCap_Position)
                ovrTrackingCap_None
-  traceIO $ "ConfigureTracking : " ++ (show r)
   
   recommenedTex0Size <- ovrHmd_GetDefaultFovTextureSize hmd ovrEye_Left 1.0
   recommenedTex1Size <- ovrHmd_GetDefaultFovTextureSize hmd ovrEye_Right 1.0
@@ -90,13 +97,13 @@ setupOculus win hmd = do
              .|. ovrDistortionCap_SRGB
              .|. ovrDistortionCap_Overdrive 
              .|. ovrDistortionCap_HqDistortion
-  traceIO $ "OvrEyeTexture : " ++ (show eyeTexture)
+  -- traceIO $ "OvrEyeTexture : " ++ (show eyeTexture)
   
   lfv <- ovrHmd_GetDefaultFov hmd ovrEye_Left
   rfv <- ovrHmd_GetDefaultFov hmd ovrEye_Right
-  (bret, eyeRD) <- ovrHmd_ConfigureRendering hmd
+  (_bret, eyeRD) <- ovrHmd_ConfigureRendering hmd
                     (Just apiconf) caps [lfv,rfv]
-  traceIO $ "ConfigureRendering : " ++ (show (bret,eyeRD))
+  -- traceIO $ "ConfigureRendering : " ++ (show (bret,eyeRD))
   --
   ovrHmd_SetEnabledCaps hmd ( 
      ovrHmdCap_ExtendDesktop 
