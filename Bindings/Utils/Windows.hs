@@ -1,3 +1,4 @@
+{-# LANGUAGE ForeignFunctionInterface #-}
 --
 -- Copyright : (c) T.Mishima 2014
 -- License : Apache-2.0

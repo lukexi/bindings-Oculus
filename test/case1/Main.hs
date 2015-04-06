@@ -18,10 +18,8 @@ import Graphics.Rendering.OpenGL as GL
 import Graphics.GLUtil
 import Foreign.Ptr (nullPtr)
 import Data.Traversable
-import Data.Foldable
 
-import Control.Concurrent
-import Control.Monad
+import Control.Applicative
 
 main :: IO ()
 main = bracket
@@ -56,16 +54,9 @@ main = bracket
         (mainProcess ghmd)
     else traceIO "init NG")
 
-startupTestThreads = do
-  forM_ [0..100] $ \i -> forkIO . forever $ print i >> threadDelay 100000
-
 mainProcess :: GLFWHandle -> Maybe OvrHmd -> IO ()
 mainProcess _ Nothing = traceIO "create hmd NG"
 mainProcess ghmd hmd' = do
-  startupTestThreads
-
-
-
   !glhdl <- initGL
   let hmd = fromJust hmd'
   traceIO $ "create hmd OK : " ++ (show hmd)

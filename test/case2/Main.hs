@@ -28,6 +28,7 @@ import Graphics.Rendering.OpenGL as GL
 import Graphics.GLUtil
 import Foreign.Ptr (nullPtr)
 import Linear.V4
+import Control.Applicative
 
 -------------
 #if defined(mingw32_HOST_OS)
