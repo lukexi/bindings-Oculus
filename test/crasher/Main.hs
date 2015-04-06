@@ -13,7 +13,7 @@ import Foreign.Ptr (nullPtr)
 import Data.Foldable
 
 import Control.Concurrent
-import Control.Monad (forever)
+import Control.Monad (forever, when)
 
 import qualified Graphics.UI.GLFW as GLFW
 
