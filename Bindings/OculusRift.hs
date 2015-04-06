@@ -377,7 +377,7 @@ ovrHmd_GetHmdPosePerEye hmd (OvrEyeType et) = do
 -- the specified eye. This can be used instead of ovrHmd_ConfigureRendering to do 
 -- setup for client rendered distortion.
 --
---foreign import ccall unsafe "_ovrHmd_GetRenderDesc" c_ovrHmd_GetRenderDesc :: OvrHmd -> OvrEyeType -> Ptr OvrPosef -> IO (Ptr OvrEyeRenderDesc)
+--foreign import ccall safe "_ovrHmd_GetRenderDesc" c_ovrHmd_GetRenderDesc :: OvrHmd -> OvrEyeType -> Ptr OvrPosef -> IO (Ptr OvrEyeRenderDesc)
 
 -- | Generate distortion mesh per eye.
 -- Distortion capabilities will depend on 'distortionCaps' flags. Users should 
@@ -401,36 +401,36 @@ ovrHmd_CreateDistortionMesh hmd eyeType pOvrPose
 -- | Used to free the distortion mesh allocated by ovrHmd_GenerateDistortionMesh. meshData elements
 -- are set to null and zeroes after the call.
 --
---foreign import ccall unsafe "_ovrHmd_DestroyDistortionMesh" c_ovrHmd_DestroyDistortionMesh :: Ptr OvrDistortionMesh -> IO ()
+--foreign import ccall safe "_ovrHmd_DestroyDistortionMesh" c_ovrHmd_DestroyDistortionMesh :: Ptr OvrDistortionMesh -> IO ()
 
 -- | Computes updated 'uvScaleOffsetOut' to be used with a distortion if render target size or
 -- viewport changes after the fact. This can be used to adjust render size every frame if desired.
 --
---foreign import ccall unsafe "_ovrHmd_GetRenderScaleAndOffset" c_ovrHmd_GetRenderScaleAndOffset :: Ptr OvrFovPort -> Ptr OvrSizei -> Ptr OvrSizei -> Ptr OvrVector2f -> IO ()
+--foreign import ccall safe "_ovrHmd_GetRenderScaleAndOffset" c_ovrHmd_GetRenderScaleAndOffset :: Ptr OvrFovPort -> Ptr OvrSizei -> Ptr OvrSizei -> Ptr OvrVector2f -> IO ()
 
 -- | Thread-safe timing function for the main thread. Caller should increment frameIndex
 -- with every frame and pass the index where applicable to functions called on the 
 -- rendering thread.
 --
---foreign import ccall unsafe "_ovrHmd_GetFrameTiming" c_ovrHmd_GetFrameTiming :: OvrHmd -> CUInt -> IO (Ptr OvrFrameTiming)
+--foreign import ccall safe "_ovrHmd_GetFrameTiming" c_ovrHmd_GetFrameTiming :: OvrHmd -> CUInt -> IO (Ptr OvrFrameTiming)
 
 -- | Called at the beginning of the frame on the rendering thread.
 -- Pass frameIndex == 0 if ovrHmd_GetFrameTiming isn't being used. Otherwise,
 -- pass the same frame index as was used for GetFrameTiming on the main thread.
 --
---foreign import ccall unsafe "_ovrHmd_BeginFrameTiming" c_ovrHmd_BeginFrameTiming :: OvrHmd -> CUInt -> IO (Ptr OvrFrameTiming)
+--foreign import ccall safe "_ovrHmd_BeginFrameTiming" c_ovrHmd_BeginFrameTiming :: OvrHmd -> CUInt -> IO (Ptr OvrFrameTiming)
 
 -- | Marks the end of client distortion rendered frame, tracking the necessary timing information.
 -- This function must be called immediately after Present/SwapBuffers + GPU sync. GPU sync is
 -- important before this call to reduce latency and ensure proper timing.
 --
---foreign import ccall unsafe "_ovrHmd_EndFrameTiming" c_ovrHmd_EndFrameTiming :: OvrHmd -> IO ()
+--foreign import ccall safe "_ovrHmd_EndFrameTiming" c_ovrHmd_EndFrameTiming :: OvrHmd -> IO ()
 
 -- | Initializes and resets frame time tracking. This is typically not necessary, but
 -- is helpful if game changes vsync state or video mode. vsync is assumed to be on if this
 -- isn't called. Resets internal frame index to the specified number.
 --
---foreign import ccall unsafe "_ovrHmd_ResetFrameTiming" c_ovrHmd_ResetFrameTiming :: OvrHmd -> CUInt -> IO ()
+--foreign import ccall safe "_ovrHmd_ResetFrameTiming" c_ovrHmd_ResetFrameTiming :: OvrHmd -> CUInt -> IO ()
 
 -- | Computes timewarp matrices used by distortion mesh shader, these are used to adjust
 -- for head orientation change since the last call to ovrHmd_GetEyePose when rendering
@@ -438,7 +438,7 @@ ovrHmd_CreateDistortionMesh hmd eyeType pOvrPose
 -- matrices, usually representing two different sides of the screen.
 -- Must be called on the same thread as ovrHmd_BeginFrameTiming.
 --
---foreign import ccall unsafe "_ovrHmd_GetEyeTimewarpMatrices" c_ovrHmd_GetEyeTimewarpMatrices :: OvrHmd -> OvrEyeType -> Ptr OvrPosef -> Ptr OvrMatrix4f -> IO ()
+--foreign import ccall safe "_ovrHmd_GetEyeTimewarpMatrices" c_ovrHmd_GetEyeTimewarpMatrices :: OvrHmd -> OvrEyeType -> Ptr OvrPosef -> Ptr OvrMatrix4f -> IO ()
 
 -------------------------------------------------------------------------------------
 -- ***** Stateless math setup functions
@@ -485,12 +485,12 @@ ovr_WaitTillTime = (fmap realToFrac) . (c_ovr_WaitTillTime . realToFrac)
 -- | Does latency test processing and returns 'TRUE' if specified rgb color should
 -- be used to clear the screen.
 --
---foreign import ccall unsafe "_ovrHmd_ProcessLatencyTest" c_ovrHmd_ProcessLatencyTest :: OvrHmd -> Ptr CUChar -> IO OvrBool
+--foreign import ccall safe "_ovrHmd_ProcessLatencyTest" c_ovrHmd_ProcessLatencyTest :: OvrHmd -> Ptr CUChar -> IO OvrBool
 
 -- | Returns non-null string once with latency test result, when it is available.
 -- Buffer is valid until next call.
 --
---foreign import ccall unsafe "_ovrHmd_GetLatencyTestResult" c_ovrHmd_GetLatencyTestResult :: OvrHmd -> IO CString
+--foreign import ccall safe "_ovrHmd_GetLatencyTestResult" c_ovrHmd_GetLatencyTestResult :: OvrHmd -> IO CString
 
 -----------------------------------------------------------------------------------
 -- ***** Health and Safety Warning Display interface
@@ -546,45 +546,45 @@ ovrHmd_DismissHSWDisplay hmd =
 -- | Get boolean property. Returns first element if property is a boolean array.
 -- | Returns defaultValue if property doesn't exist.
 --
---foreign import ccall unsafe "_ovrHmd_GetBool" c_ovrHmd_GetBool :: OvrHmd -> CString -> OvrBool -> IO OvrBool 
+--foreign import ccall safe "_ovrHmd_GetBool" c_ovrHmd_GetBool :: OvrHmd -> CString -> OvrBool -> IO OvrBool 
 
 -- | Modify bool property; false if property doesn't exist or is readonly.
 --
---foreign import ccall unsafe "_ovrHmd_SetBool" c_ovrHmd_SetBool :: OvrHmd -> CString -> OvrBool -> IO OvrBool 
+--foreign import ccall safe "_ovrHmd_SetBool" c_ovrHmd_SetBool :: OvrHmd -> CString -> OvrBool -> IO OvrBool 
 
 -- | Get integer property. Returns first element if property is an integer array.
 -- Returns defaultValue if property doesn't exist.
---foreign import ccall unsafe "_ovrHmd_GetInt" c_ovrHmd_GetInt :: OvrHmd -> CString -> CInt -> IO CInt 
+--foreign import ccall safe "_ovrHmd_GetInt" c_ovrHmd_GetInt :: OvrHmd -> CString -> CInt -> IO CInt 
 
 -- | Modify integer property; false if property doesn't exist or is readonly.
 --
---foreign import ccall unsafe "_ovrHmd_SetInt" c_ovrHmd_SetInt :: OvrHmd -> CString -> CInt -> IO OvrBool 
+--foreign import ccall safe "_ovrHmd_SetInt" c_ovrHmd_SetInt :: OvrHmd -> CString -> CInt -> IO OvrBool 
 
 -- | Get float property. Returns first element if property is a float array.
 -- Returns defaultValue if property doesn't exist.
 --
---foreign import ccall unsafe "_ovrHmd_GetFloat" c_ovrHmd_GetFloat :: OvrHmd -> CString -> CFloat -> IO CFloat 
+--foreign import ccall safe "_ovrHmd_GetFloat" c_ovrHmd_GetFloat :: OvrHmd -> CString -> CFloat -> IO CFloat 
 
 -- | Modify float property; false if property doesn't exist or is readonly.
 --
---foreign import ccall unsafe "_ovrHmd_SetFloat" c_ovrHmd_SetFloat :: OvrHmd -> CString -> CFloat -> IO OvrBool 
+--foreign import ccall safe "_ovrHmd_SetFloat" c_ovrHmd_SetFloat :: OvrHmd -> CString -> CFloat -> IO OvrBool 
 
 -- | Get float[] property. Returns the number of elements filled in, 0 if property doesn't exist.
 -- Maximum of arraySize elements will be written.
 --
---foreign import ccall unsafe "_ovrHmd_GetFloatArray" c_ovrHmd_GetFloatArray :: OvrHmd -> CString -> Ptr CFloat -> CUInt -> IO CUInt 
+--foreign import ccall safe "_ovrHmd_GetFloatArray" c_ovrHmd_GetFloatArray :: OvrHmd -> CString -> Ptr CFloat -> CUInt -> IO CUInt 
 
 -- | Modify float[] property; false if property doesn't exist or is readonly.
 --
---foreign import ccall unsafe "_ovrHmd_SetFloatArray" c_ovrHmd_SetFloatArray :: OvrHmd -> CString -> Ptr CFloat -> CUInt -> IO OvrBool 
+--foreign import ccall safe "_ovrHmd_SetFloatArray" c_ovrHmd_SetFloatArray :: OvrHmd -> CString -> Ptr CFloat -> CUInt -> IO OvrBool 
 
 -- | Get string property. Returns first element if property is a string array.
 -- Returns defaultValue if property doesn't exist.
 -- String memory is guaranteed to exist until next call to GetString or GetStringArray, or HMD is destroyed.
 --
---foreign import ccall unsafe "_ovrHmd_GetString" c_ovrHmd_GetString :: OvrHmd -> CString -> CString -> IO CString 
+--foreign import ccall safe "_ovrHmd_GetString" c_ovrHmd_GetString :: OvrHmd -> CString -> CString -> IO CString 
 
 -- | Set string property
 --
---foreign import ccall unsafe "_ovrHmd_SetString" c_ovrHmd_SetString :: OvrHmd -> CString -> CString -> IO OvrBool 
+--foreign import ccall safe "_ovrHmd_SetString" c_ovrHmd_SetString :: OvrHmd -> CString -> CString -> IO OvrBool 
 

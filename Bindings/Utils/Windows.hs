@@ -11,5 +11,5 @@ getWindowHandle :: String -> IO HWND
 getWindowHandle winTitle = withCString winTitle $ \ name -> 
   c_getWindowHandle name 
 
-foreign import ccall unsafe "getWindowHandle" c_getWindowHandle :: CString -> IO HWND 
+foreign import ccall safe "getWindowHandle" c_getWindowHandle :: CString -> IO HWND 
 

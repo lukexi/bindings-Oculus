@@ -635,45 +635,45 @@ instance Storable OvrTexture where
 
 ------------------------------------------------------------------------
 -- API --
-foreign import ccall unsafe "_ovr_InitializeRenderingShim" c_ovr_InitializeRenderingShim :: IO OvrBool
+foreign import ccall safe "_ovr_InitializeRenderingShim" c_ovr_InitializeRenderingShim :: IO OvrBool
 
-foreign import ccall unsafe "_ovr_Initialize" c_ovr_Initialize :: IO OvrBool
+foreign import ccall safe "_ovr_Initialize" c_ovr_Initialize :: IO OvrBool
 
-foreign import ccall unsafe "_ovr_Shutdown" c_ovr_Shutdown :: IO ()
+foreign import ccall safe "_ovr_Shutdown" c_ovr_Shutdown :: IO ()
 
-foreign import ccall unsafe "_ovr_GetVersionString" c_ovr_GetVersionString :: CString
+foreign import ccall safe "_ovr_GetVersionString" c_ovr_GetVersionString :: CString
 
-foreign import ccall unsafe "_ovrHmd_Detect" c_ovrHmd_Detect :: IO CInt
+foreign import ccall safe "_ovrHmd_Detect" c_ovrHmd_Detect :: IO CInt
 
-foreign import ccall unsafe "_ovrHmd_Create" c_ovrHmd_Create :: CInt -> IO OvrHmd
+foreign import ccall safe "_ovrHmd_Create" c_ovrHmd_Create :: CInt -> IO OvrHmd
 
-foreign import ccall unsafe "_ovrHmd_Destroy" c_ovrHmd_Destroy :: OvrHmd -> IO () 
+foreign import ccall safe "_ovrHmd_Destroy" c_ovrHmd_Destroy :: OvrHmd -> IO () 
 
-foreign import ccall unsafe "_ovrHmd_CreateDebug" c_ovrHmd_CreateDebug :: CInt -> IO OvrHmd 
+foreign import ccall safe "_ovrHmd_CreateDebug" c_ovrHmd_CreateDebug :: CInt -> IO OvrHmd 
 
-foreign import ccall unsafe "_ovrHmd_GetLastError" c_ovrHmd_GetLastError :: OvrHmd -> IO CString
+foreign import ccall safe "_ovrHmd_GetLastError" c_ovrHmd_GetLastError :: OvrHmd -> IO CString
 
-foreign import ccall unsafe "_ovrHmd_AttachToWindow" c_ovrHmd_AttachToWindow :: OvrHmd -> HWND -> Ptr OvrRecti -> Ptr OvrRecti -> IO OvrBool 
+foreign import ccall safe "_ovrHmd_AttachToWindow" c_ovrHmd_AttachToWindow :: OvrHmd -> HWND -> Ptr OvrRecti -> Ptr OvrRecti -> IO OvrBool 
 
 -------------------------------------------------------------------------------------
 
-foreign import ccall unsafe "_ovrHmd_GetEnabledCaps" c_ovrHmd_GetEnabledCaps :: OvrHmd -> IO CUInt
+foreign import ccall safe "_ovrHmd_GetEnabledCaps" c_ovrHmd_GetEnabledCaps :: OvrHmd -> IO CUInt
 
-foreign import ccall unsafe "_ovrHmd_SetEnabledCaps" c_ovrHmd_SetEnabledCaps :: OvrHmd -> CUInt -> IO ()
+foreign import ccall safe "_ovrHmd_SetEnabledCaps" c_ovrHmd_SetEnabledCaps :: OvrHmd -> CUInt -> IO ()
 
 -------------------------------------------------------------------------------------
 -- ***** Tracking Interface
 
-foreign import ccall unsafe "_ovrHmd_ConfigureTracking" c_ovrHmd_ConfigureTracking :: OvrHmd -> CUInt -> CUInt -> IO OvrBool
+foreign import ccall safe "_ovrHmd_ConfigureTracking" c_ovrHmd_ConfigureTracking :: OvrHmd -> CUInt -> CUInt -> IO OvrBool
 
-foreign import ccall unsafe "_ovrHmd_RecenterPose" c_ovrHmd_RecenterPose :: OvrHmd -> IO ()
+foreign import ccall safe "_ovrHmd_RecenterPose" c_ovrHmd_RecenterPose :: OvrHmd -> IO ()
 
-foreign import ccall unsafe "_ovrHmd_GetTrackingState" c_ovrHmd_GetTrackingState :: OvrHmd -> CDouble -> IO (Ptr OvrTrackingState)
+foreign import ccall safe "_ovrHmd_GetTrackingState" c_ovrHmd_GetTrackingState :: OvrHmd -> CDouble -> IO (Ptr OvrTrackingState)
 
 -------------------------------------------------------------------------------------
 -- ***** Graphics Setup
 
-foreign import ccall unsafe "_ovrHmd_GetFovTextureSize" c_ovrHmd_GetFovTextureSize :: OvrHmd -> CInt -> Ptr OvrFovPort -> CFloat -> IO (Ptr OvrSizei)
+foreign import ccall safe "_ovrHmd_GetFovTextureSize" c_ovrHmd_GetFovTextureSize :: OvrHmd -> CInt -> Ptr OvrFovPort -> CFloat -> IO (Ptr OvrSizei)
 
 -------------------------------------------------------------------------------------
 -- | *****  SDK Distortion Rendering Functions
@@ -692,7 +692,7 @@ foreign import ccall safe "_ovrHmd_GetHmdPosePerEye" c_ovrHmd_GetHmdPosePerEye :
 -- *****  Client Distortion Rendering Functions
 --
 
-foreign import ccall unsafe "_ovrHmd_GetRenderDesc" c_ovrHmd_GetRenderDesc :: OvrHmd -> OvrEyeType -> Ptr OvrPosef -> IO (Ptr OvrEyeRenderDesc)
+foreign import ccall safe "_ovrHmd_GetRenderDesc" c_ovrHmd_GetRenderDesc :: OvrHmd -> OvrEyeType -> Ptr OvrPosef -> IO (Ptr OvrEyeRenderDesc)
 
 data OvrDistortionVertex = OvrDistortionVertex
   { screenPosNDC :: OvrVector2f
@@ -732,44 +732,44 @@ instance Storable OvrDistortionMesh where
     return $ OvrDistortionMesh pvd pid vc ic 
   poke _ _ = return () 
 
-foreign import ccall unsafe "_ovrHmd_CreateDistortionMesh" c_ovrHmd_CreateDistortionMesh :: OvrHmd -> OvrEyeType -> Ptr OvrPosef -> CUInt -> Ptr OvrDistortionMesh -> IO OvrBool
+foreign import ccall safe "_ovrHmd_CreateDistortionMesh" c_ovrHmd_CreateDistortionMesh :: OvrHmd -> OvrEyeType -> Ptr OvrPosef -> CUInt -> Ptr OvrDistortionMesh -> IO OvrBool
 
-foreign import ccall unsafe "_ovrHmd_DestroyDistortionMesh" c_ovrHmd_DestroyDistortionMesh :: Ptr OvrDistortionMesh -> IO ()
+foreign import ccall safe "_ovrHmd_DestroyDistortionMesh" c_ovrHmd_DestroyDistortionMesh :: Ptr OvrDistortionMesh -> IO ()
 
-foreign import ccall unsafe "_ovrHmd_GetRenderScaleAndOffset" c_ovrHmd_GetRenderScaleAndOffset :: Ptr OvrFovPort -> Ptr OvrSizei -> Ptr OvrSizei -> Ptr OvrVector2f -> IO ()
+foreign import ccall safe "_ovrHmd_GetRenderScaleAndOffset" c_ovrHmd_GetRenderScaleAndOffset :: Ptr OvrFovPort -> Ptr OvrSizei -> Ptr OvrSizei -> Ptr OvrVector2f -> IO ()
 
-foreign import ccall unsafe "_ovrHmd_GetFrameTiming" c_ovrHmd_GetFrameTiming :: OvrHmd -> CUInt -> IO (Ptr OvrFrameTiming)
+foreign import ccall safe "_ovrHmd_GetFrameTiming" c_ovrHmd_GetFrameTiming :: OvrHmd -> CUInt -> IO (Ptr OvrFrameTiming)
 
-foreign import ccall unsafe "_ovrHmd_BeginFrameTiming" c_ovrHmd_BeginFrameTiming :: OvrHmd -> CUInt -> IO (Ptr OvrFrameTiming)
+foreign import ccall safe "_ovrHmd_BeginFrameTiming" c_ovrHmd_BeginFrameTiming :: OvrHmd -> CUInt -> IO (Ptr OvrFrameTiming)
 
-foreign import ccall unsafe "_ovrHmd_EndFrameTiming" c_ovrHmd_EndFrameTiming :: OvrHmd -> IO ()
+foreign import ccall safe "_ovrHmd_EndFrameTiming" c_ovrHmd_EndFrameTiming :: OvrHmd -> IO ()
 
-foreign import ccall unsafe "_ovrHmd_ResetFrameTiming" c_ovrHmd_ResetFrameTiming :: OvrHmd -> CUInt -> IO ()
+foreign import ccall safe "_ovrHmd_ResetFrameTiming" c_ovrHmd_ResetFrameTiming :: OvrHmd -> CUInt -> IO ()
 
-foreign import ccall unsafe "_ovrHmd_GetEyeTimewarpMatrices" c_ovrHmd_GetEyeTimewarpMatrices :: OvrHmd -> OvrEyeType -> Ptr OvrPosef -> Ptr OvrMatrix4f -> IO ()
+foreign import ccall safe "_ovrHmd_GetEyeTimewarpMatrices" c_ovrHmd_GetEyeTimewarpMatrices :: OvrHmd -> OvrEyeType -> Ptr OvrPosef -> Ptr OvrMatrix4f -> IO ()
 
 -------------------------------------------------------------------------------------
 -- ***** Stateless math setup functions
 
-foreign import ccall unsafe "_ovrMatrix4f_Projection" c_ovrMatrix4f_Projection :: Ptr OvrFovPort -> CFloat -> CFloat -> OvrBool -> IO (Ptr OvrMatrix4f)
+foreign import ccall safe "_ovrMatrix4f_Projection" c_ovrMatrix4f_Projection :: Ptr OvrFovPort -> CFloat -> CFloat -> OvrBool -> IO (Ptr OvrMatrix4f)
 
-foreign import ccall unsafe "_ovrMatrix4f_OrthoSubProjection" c_ovrMatrix4f_OrthoSubProjection :: Ptr OvrMatrix4f -> Ptr OvrVector2f -> CFloat -> CFloat -> IO (Ptr OvrMatrix4f)
+foreign import ccall safe "_ovrMatrix4f_OrthoSubProjection" c_ovrMatrix4f_OrthoSubProjection :: Ptr OvrMatrix4f -> Ptr OvrVector2f -> CFloat -> CFloat -> IO (Ptr OvrMatrix4f)
 
-foreign import ccall unsafe "_ovr_GetTimeInSeconds" c_ovr_GetTimeInSeconds :: IO CDouble
+foreign import ccall safe "_ovr_GetTimeInSeconds" c_ovr_GetTimeInSeconds :: IO CDouble
 
-foreign import ccall unsafe "_ovr_WaitTillTime" c_ovr_WaitTillTime :: CDouble -> IO CDouble
+foreign import ccall safe "_ovr_WaitTillTime" c_ovr_WaitTillTime :: CDouble -> IO CDouble
 
 -----------------------------------------------------------------------------------
 -- ***** Latency Test interface
 
-foreign import ccall unsafe "_ovrHmd_ProcessLatencyTest" c_ovrHmd_ProcessLatencyTest :: OvrHmd -> Ptr CUChar -> IO OvrBool
+foreign import ccall safe "_ovrHmd_ProcessLatencyTest" c_ovrHmd_ProcessLatencyTest :: OvrHmd -> Ptr CUChar -> IO OvrBool
 
-foreign import ccall unsafe "_ovrHmd_GetLatencyTestResult" c_ovrHmd_GetLatencyTestResult :: OvrHmd -> IO CString
+foreign import ccall safe "_ovrHmd_GetLatencyTestResult" c_ovrHmd_GetLatencyTestResult :: OvrHmd -> IO CString
 
 -----------------------------------------------------------------------------------
 -- ***** Health and Safety Warning Display interface
 
-foreign import ccall unsafe "_ovrHmd_GetHSWDisplayState" c_ovrHmd_GetHSWDisplayState :: OvrHmd -> IO (Ptr OvrHSWDisplayState)
+foreign import ccall safe "_ovrHmd_GetHSWDisplayState" c_ovrHmd_GetHSWDisplayState :: OvrHmd -> IO (Ptr OvrHSWDisplayState)
 
 data OvrHSWDisplayState = OvrHSWDisplayState
   { displayed :: OvrBool
@@ -789,28 +789,28 @@ instance Storable OvrHSWDisplayState where
     (#poke ovrHSWDisplayState, StartTime) ptr st 
     (#poke ovrHSWDisplayState, DismissibleTime) ptr dt 
 
-foreign import ccall unsafe "_ovrHmd_DismissHSWDisplay" c_ovrHmd_DismissHSWDisplay :: OvrHmd -> IO OvrBool 
+foreign import ccall safe "_ovrHmd_DismissHSWDisplay" c_ovrHmd_DismissHSWDisplay :: OvrHmd -> IO OvrBool 
 
 -----------------------------------------------------------------------------------
 -- ***** Property Access
 
-foreign import ccall unsafe "_ovrHmd_GetBool" c_ovrHmd_GetBool :: OvrHmd -> CString -> OvrBool -> IO OvrBool 
+foreign import ccall safe "_ovrHmd_GetBool" c_ovrHmd_GetBool :: OvrHmd -> CString -> OvrBool -> IO OvrBool 
 
-foreign import ccall unsafe "_ovrHmd_SetBool" c_ovrHmd_SetBool :: OvrHmd -> CString -> OvrBool -> IO OvrBool 
+foreign import ccall safe "_ovrHmd_SetBool" c_ovrHmd_SetBool :: OvrHmd -> CString -> OvrBool -> IO OvrBool 
 
-foreign import ccall unsafe "_ovrHmd_GetInt" c_ovrHmd_GetInt :: OvrHmd -> CString -> CInt -> IO CInt 
+foreign import ccall safe "_ovrHmd_GetInt" c_ovrHmd_GetInt :: OvrHmd -> CString -> CInt -> IO CInt 
 
-foreign import ccall unsafe "_ovrHmd_SetInt" c_ovrHmd_SetInt :: OvrHmd -> CString -> CInt -> IO OvrBool 
+foreign import ccall safe "_ovrHmd_SetInt" c_ovrHmd_SetInt :: OvrHmd -> CString -> CInt -> IO OvrBool 
 
-foreign import ccall unsafe "_ovrHmd_GetFloat" c_ovrHmd_GetFloat :: OvrHmd -> CString -> CFloat -> IO CFloat 
+foreign import ccall safe "_ovrHmd_GetFloat" c_ovrHmd_GetFloat :: OvrHmd -> CString -> CFloat -> IO CFloat 
 
-foreign import ccall unsafe "_ovrHmd_SetFloat" c_ovrHmd_SetFloat :: OvrHmd -> CString -> CFloat -> IO OvrBool 
+foreign import ccall safe "_ovrHmd_SetFloat" c_ovrHmd_SetFloat :: OvrHmd -> CString -> CFloat -> IO OvrBool 
 
-foreign import ccall unsafe "_ovrHmd_GetFloatArray" c_ovrHmd_GetFloatArray :: OvrHmd -> CString -> Ptr CFloat -> CUInt -> IO CUInt 
+foreign import ccall safe "_ovrHmd_GetFloatArray" c_ovrHmd_GetFloatArray :: OvrHmd -> CString -> Ptr CFloat -> CUInt -> IO CUInt 
 
-foreign import ccall unsafe "_ovrHmd_SetFloatArray" c_ovrHmd_SetFloatArray :: OvrHmd -> CString -> Ptr CFloat -> CUInt -> IO OvrBool 
+foreign import ccall safe "_ovrHmd_SetFloatArray" c_ovrHmd_SetFloatArray :: OvrHmd -> CString -> Ptr CFloat -> CUInt -> IO OvrBool 
 
-foreign import ccall unsafe "_ovrHmd_GetString" c_ovrHmd_GetString :: OvrHmd -> CString -> CString -> IO CString 
+foreign import ccall safe "_ovrHmd_GetString" c_ovrHmd_GetString :: OvrHmd -> CString -> CString -> IO CString 
 
-foreign import ccall unsafe "_ovrHmd_SetString" c_ovrHmd_SetString :: OvrHmd -> CString -> CString -> IO OvrBool 
+foreign import ccall safe "_ovrHmd_SetString" c_ovrHmd_SetString :: OvrHmd -> CString -> CString -> IO OvrBool 
 
