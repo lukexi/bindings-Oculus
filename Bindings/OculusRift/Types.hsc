@@ -574,7 +574,6 @@ instance Storable OvrRenderAPIConfig where
   alignment = sizeOf 
   peek = undefined
   poke ptr (OvrRenderAPIConfig h w d) = do
-  --poke ptr (OvrRenderAPIConfig h ) = do
     (#poke ovrRenderAPIConfig, Header) ptr h 
     (#poke ovrRenderAPIConfig, PlatformData[0]) ptr $
       case w of
@@ -584,8 +583,6 @@ instance Storable OvrRenderAPIConfig where
       case d of
         Just d' -> d'
         Nothing -> nullPtr
-    (#poke ovrRenderAPIConfig, PlatformData[0]) ptr nullPtr 
-    (#poke ovrRenderAPIConfig, PlatformData[1]) ptr nullPtr 
     (#poke ovrRenderAPIConfig, PlatformData[2]) ptr nullPtr 
     (#poke ovrRenderAPIConfig, PlatformData[3]) ptr nullPtr 
     (#poke ovrRenderAPIConfig, PlatformData[4]) ptr nullPtr 
